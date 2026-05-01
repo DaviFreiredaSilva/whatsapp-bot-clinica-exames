@@ -1,4 +1,4 @@
-from langchain_anthropic import ChatAnthropic
+from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage
 
 from app.agent.state import AgentState
@@ -18,9 +18,9 @@ Responda sempre em português brasileiro."""
 
 
 async def handle_faq(state: AgentState) -> dict:
-    llm = ChatAnthropic(
+    llm = ChatOpenAI(
         model=settings.model_name,
-        api_key=settings.anthropic_api_key,
+        api_key=settings.openai_api_key,
     )
     response = await llm.ainvoke([SystemMessage(content=SYSTEM_PROMPT), *state["messages"]])
     return {"messages": [response]}

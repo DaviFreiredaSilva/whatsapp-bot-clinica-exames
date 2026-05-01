@@ -1,0 +1,90 @@
+PRÓXIMOS PASSOS — WhatsApp Bot Clínica de Exames
+=================================================
+
+STATUS ATUAL
+------------
+- Aplicação rodando localmente com FastAPI + LangGraph + gpt-4o-mini
+- Banco de dados: SQLite (clinica_bot.sqlite) — migrar para PostgreSQL antes de produção
+- Fluxo de conversação funcionando: FAQ, agendamento, resultado, handoff, fallback
+- Webhook protegido por x-api-secret
+- Integração com Evolution API ainda NÃO configurada
+
+PARA RODAR NO NOVO COMPUTADOR
+------------------------------
+1. Instalar Python 3.11+
+2. Criar e ativar o ambiente virtual:
+      python -m venv .venv
+      .venv\Scripts\activate          (Windows)
+      source .venv/bin/activate        (Linux/Mac)
+3. Instalar dependências:
+      pip install -r requirements.txt
+4. Preencher o arquivo .env com as chaves reais (ver seção VARIÁVEIS DE AMBIENTE)
+5. Rodar o servidor:
+      python -m uvicorn app.main:app --port 8000 --reload
+
+VARIÁVEIS DE AMBIENTE (.env)
+-----------------------------
+API_SECRET         = segredo compartilhado entre N8N e o webhook (troque por valor forte)
+OPENAI_API_KEY     = chave da OpenAI (platform.openai.com)
+MODEL_NAME         = gpt-4o-mini (pode trocar por gpt-4o se quiser mais qualidade)
+DATABASE_URL       = clinica_bot.sqlite (dev) ou postgresql://... (produção)
+EVOLUTION_API_URL  = URL da instância da Evolution API
+EVOLUTION_API_KEY  = chave da Evolution API
+EVOLUTION_INSTANCE = nome da instância WhatsApp na Evolution API
+
+PRÓXIMOS PASSOS (em ordem de prioridade)
+-----------------------------------------
+
+1. INTEGRAÇÃO WHATSAPP (bloqueante — sem isso o bot não recebe mensagens reais)
+   - Instalar e configurar a Evolution API (https://doc.evolution-api.com)
+   - Conectar uma conta WhatsApp à instância
+   - Configurar o N8N (ou webhook direto) para encaminhar mensagens recebidas para:
+       POST http://<seu-servidor>:8000/webhook/message
+       Header: x-api-secret: <valor do API_SECRET>
+       Body:   { "phone": "<número>", "message": "<texto>" }
+   - Testar ciclo completo: mensagem no WhatsApp → bot responde
+
+2. DADOS REAIS DA CLÍNICA NOS NÓS
+   - app/agent/nodes/faq.py
+       Substituir horários, endereço, convênios e valores genéricos pelos dados reais
+   - app/agent/nodes/resultado.py
+       Substituir URL do portal de resultados pelo endereço real
+   - app/agent/nodes/handoff.py
+       Confirmar horários de atendimento humano
+
+3. TOOLS LANGGRAPH (app/agent/tools/ — pasta já criada, ainda vazia)
+   Implementar ferramentas para que o agente possa consultar sistemas reais:
+   - Consultar disponibilidade de horários (API do sistema da clínica)
+   - Criar/cancelar agendamento no sistema
+   - Verificar se resultado de exame está disponível
+
+4. MIGRAÇÃO PARA POSTGRESQL (antes de ir para produção)
+   - Trocar em requirements.txt:
+       Remover: langgraph-checkpoint-sqlite, aiosqlite
+       Adicionar: langgraph-checkpoint-postgres>=2.0.0, psycopg[binary,pool]>=3.2.0
+   - Trocar em app/agent/graph.py:
+       Remover: AsyncSqliteSaver
+       Adicionar: AsyncPostgresSaver + AsyncConnectionPool (ver commit inicial do projeto)
+   - Atualizar DATABASE_URL no .env para: postgresql://user:pass@host:5432/clinica_bot
+
+5. PRODUÇÃO
+   - Criar Dockerfile para containerizar a aplicação
+   - Configurar HTTPS (obrigatório para webhook WhatsApp)
+   - Usar variáveis de ambiente via secrets (não .env em produção)
+   - Adicionar monitoramento de erros (Sentry ou similar)
+   - Configurar logging estruturado
+
+ESTRUTURA DO PROJETO (referência rápida)
+-----------------------------------------
+app/main.py                  — entry point FastAPI
+app/config.py                — settings (lê .env)
+app/agent/graph.py           — grafo LangGraph + checkpointer SQLite
+app/agent/state.py           — AgentState: messages, phone, intent
+app/agent/nodes/classify.py  — classifica intenção da mensagem
+app/agent/nodes/faq.py       — responde dúvidas gerais
+app/agent/nodes/scheduling.py — coleta dados de agendamento
+app/agent/nodes/resultado.py  — instrui acesso a resultados
+app/agent/nodes/handoff.py   — transfere para atendente humano
+app/agent/nodes/fallback.py  — menu principal (catch-all)
+app/api/webhook.py           — POST /webhook/message
+app/services/evolution.py    — envia mensagem proativa via Evolution API

@@ -1,6 +1,5 @@
 from langgraph.graph import StateGraph, START, END
-from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
-from psycopg_pool import AsyncConnectionPool
+from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 
 from app.agent.state import AgentState
 from app.agent.nodes.classify import classify_intent, route_by_intent
@@ -12,17 +11,16 @@ from app.agent.nodes.fallback import handle_fallback
 from app.config import settings
 
 _graph = None
-_pool = None
+_checkpointer_cm = None
+_checkpointer = None
 
 
 async def init_graph():
-    global _graph, _pool
+    global _graph, _checkpointer_cm, _checkpointer
 
-    _pool = AsyncConnectionPool(conninfo=settings.database_url, open=False)
-    await _pool.open()
-
-    checkpointer = AsyncPostgresSaver(_pool)
-    await checkpointer.setup()
+    _checkpointer_cm = AsyncSqliteSaver.from_conn_string(settings.database_url)
+    _checkpointer = await _checkpointer_cm.__aenter__()
+    checkpointer = _checkpointer
 
     builder = StateGraph(AgentState)
 
@@ -55,8 +53,8 @@ async def init_graph():
 
 
 async def close_graph():
-    if _pool:
-        await _pool.close()
+    if _checkpointer_cm:
+        await _checkpointer_cm.__aexit__(None, None, None)
 
 
 def get_graph():

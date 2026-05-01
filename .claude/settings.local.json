@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\davi3\\\\OneDrive\\\\Documentos\\\\downloads novos\\\\whatsapp-bot-clinica-exames\" -Recurse -Force)",
+      "Bash(Select-Object FullName)",
+      "Bash(python -m uvicorn app.main:app --port 8000)",
+      "Bash(curl -s http://localhost:8000/health)",
+      "PowerShell(Stop-Process *)"
+    ]
+  }
+}

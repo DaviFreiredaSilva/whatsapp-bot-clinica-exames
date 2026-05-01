@@ -1,4 +1,4 @@
-from langchain_anthropic import ChatAnthropic
+from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage
 
 from app.agent.state import AgentState
@@ -21,9 +21,9 @@ Informe que a confirmação final será feita por um atendente em até 1 hora ú
 
 
 async def handle_scheduling(state: AgentState) -> dict:
-    llm = ChatAnthropic(
+    llm = ChatOpenAI(
         model=settings.model_name,
-        api_key=settings.anthropic_api_key,
+        api_key=settings.openai_api_key,
     )
     response = await llm.ainvoke([SystemMessage(content=SYSTEM_PROMPT), *state["messages"]])
     return {"messages": [response]}
