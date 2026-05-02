@@ -1,0 +1,54 @@
+# Clínica Exemplo de Exames — Informações
+
+## Horários de Funcionamento
+- Segunda a sexta: 07h às 17h
+- Sábado: 07h às 12h
+- Domingo e feriados: fechado
+
+## Endereço
+Rua das Flores, 123 — Bairro Centro — São Paulo/SP
+Ponto de referência: ao lado do Banco do Brasil, próximo ao metrô Sé.
+
+## Telefone e Contato
+- Telefone: (11) 1234-5678
+- WhatsApp: (11) 91234-5678
+- E-mail: contato@clinicaexemplo.com.br
+
+## Convênios Aceitos
+Unimed, Bradesco Saúde, Amil, SulAmérica, NotreDame, Porto Seguro Saúde, Hapvida.
+Para outros convênios, entre em contato para verificar disponibilidade.
+
+## Exames Laboratoriais — Preparo
+
+### Hemograma e Glicemia
+Jejum de 8 a 12 horas. Pode tomar água normalmente.
+
+### Colesterol e Triglicerídeos
+Jejum de 12 horas. Evitar atividade física intensa nas 24h anteriores.
+
+### TSH e Hormônios da Tireoide
+Não requer jejum. Coleta preferencialmente pela manhã.
+
+### Urina Tipo 1 (EAS)
+Coletar o jato médio da primeira urina da manhã no frasco fornecido pela clínica.
+
+### PSA (Próstata)
+Abstinência sexual de 48 horas antes da coleta. Não realizar exame após toque retal recente.
+
+## Prazos para Resultados
+- Exames laboratoriais simples: mesmo dia ou até 24 horas
+- Exames de imagem (ultrassom): até 2 dias úteis
+- Exames de maior complexidade: até 5 dias úteis
+
+## Como Acessar Resultados
+Os resultados ficam disponíveis no portal online (www.clinicaexemplo.com.br/resultados)
+mediante login com CPF e data de nascimento.
+Também é possível retirar em formato impresso na recepção, com documento de identidade.
+
+## Formas de Pagamento
+Dinheiro, cartão de débito, cartão de crédito (até 3x sem juros) e PIX.
+Pacientes particulares têm 10% de desconto no pagamento via PIX ou dinheiro.
+
+## Agendamento
+O agendamento pode ser feito pelo WhatsApp, telefone ou diretamente na recepção.
+Pacientes com convênio devem apresentar carteirinha e pedido médico no dia do exame.

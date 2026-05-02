@@ -9,6 +9,8 @@ class Settings(BaseSettings):
 
     database_url: str = "clinica_bot.sqlite"
 
+    docs_dir: str = "docs"
+
     evolution_api_url: str = "http://localhost:8080"
     evolution_api_key: str = ""
     evolution_instance: str = "clinica"
