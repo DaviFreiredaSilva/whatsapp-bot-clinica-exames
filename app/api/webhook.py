@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 from app.agent.graph import get_graph
 from app.config import settings
+from app.services.evolution import send_text
 
 router = APIRouter()
 
@@ -39,4 +40,5 @@ async def receive_message(
     )
 
     last_message = result["messages"][-1]
+    await send_text(payload.phone, last_message.content)
     return OutgoingMessage(phone=payload.phone, response=last_message.content)
