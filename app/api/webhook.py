@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import logging
 
 from fastapi import APIRouter, HTTPException, Query, Request, Response
 
@@ -8,6 +9,7 @@ from app.config import settings
 from app.services.whatsapp import send_text
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.get("/webhook/message")
@@ -44,14 +46,19 @@ async def receive_message(request: Request):
 
                 phone = msg["from"]
                 text = msg["text"]["body"]
+                logger.info("Mensagem recebida de %s: %s", phone, text)
 
-                graph = get_graph()
-                config = {"configurable": {"thread_id": phone}}
-                result = await graph.ainvoke(
-                    {"messages": [{"role": "user", "content": text}], "phone": phone, "intent": None},
-                    config=config,
-                )
-                last = result["messages"][-1]
-                await send_text(phone, last.content)
+                try:
+                    graph = get_graph()
+                    config = {"configurable": {"thread_id": phone}}
+                    result = await graph.ainvoke(
+                        {"messages": [{"role": "user", "content": text}], "phone": phone, "intent": None},
+                        config=config,
+                    )
+                    last = result["messages"][-1]
+                    logger.info("Resposta gerada: %s", last.content)
+                    await send_text(phone, last.content)
+                except Exception as e:
+                    logger.error("Erro ao processar mensagem de %s: %s", phone, e, exc_info=True)
 
     return {"status": "ok"}
