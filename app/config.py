@@ -2,18 +2,18 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    api_secret: str = "dev-secret"
-
     openai_api_key: str
     model_name: str = "gpt-4o-mini"
 
     database_url: str = "clinica_bot.sqlite"
-
     docs_dir: str = "docs"
 
-    evolution_api_url: str = "http://localhost:8080"
-    evolution_api_key: str = ""
-    evolution_instance: str = "clinica"
+    # Meta WhatsApp Cloud API
+    meta_access_token: str
+    meta_phone_number_id: str
+    meta_webhook_verify_token: str = "clinica-bot-verify"
+    meta_app_secret: str = ""
+    meta_api_version: str = "v20.0"
 
     class Config:
         env_file = ".env"

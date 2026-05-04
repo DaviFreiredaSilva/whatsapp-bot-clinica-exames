@@ -1,5 +1,5 @@
 from langgraph.graph import StateGraph, START, END
-from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 
 from app.agent.state import AgentState
 from app.agent.nodes.classify import classify_intent, route_by_intent
@@ -12,15 +12,14 @@ from app.config import settings
 
 _graph = None
 _checkpointer_cm = None
-_checkpointer = None
 
 
 async def init_graph():
-    global _graph, _checkpointer_cm, _checkpointer
+    global _graph, _checkpointer_cm
 
-    _checkpointer_cm = AsyncSqliteSaver.from_conn_string(settings.database_url)
-    _checkpointer = await _checkpointer_cm.__aenter__()
-    checkpointer = _checkpointer
+    _checkpointer_cm = AsyncPostgresSaver.from_conn_string(settings.database_url)
+    checkpointer = await _checkpointer_cm.__aenter__()
+    await checkpointer.setup()
 
     builder = StateGraph(AgentState)
 
