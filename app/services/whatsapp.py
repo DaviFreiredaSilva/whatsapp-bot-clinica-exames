@@ -1,18 +1,16 @@
 import httpx
 from app.config import settings
 
-BASE_URL = "https://graph.facebook.com"
+_BASE = "https://api.z-api.io/instances/{instance_id}/token/{token}"
 
 
 async def send_text(phone: str, text: str) -> None:
-    url = f"{BASE_URL}/{settings.meta_api_version}/{settings.meta_phone_number_id}/messages"
-    headers = {"Authorization": f"Bearer {settings.meta_access_token}"}
-    payload = {
-        "messaging_product": "whatsapp",
-        "to": phone,
-        "type": "text",
-        "text": {"body": text},
-    }
+    url = _BASE.format(
+        instance_id=settings.zapi_instance_id,
+        token=settings.zapi_token,
+    ) + "/send-text"
+    headers = {"Client-Token": settings.zapi_client_token}
+    payload = {"phone": phone, "message": text}
     async with httpx.AsyncClient() as client:
         response = await client.post(url, json=payload, headers=headers, timeout=10)
         response.raise_for_status()

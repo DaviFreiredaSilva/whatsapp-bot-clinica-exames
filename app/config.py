@@ -8,12 +8,10 @@ class Settings(BaseSettings):
     database_url: str = "clinica_bot.sqlite"
     docs_dir: str = "docs"
 
-    # Meta WhatsApp Cloud API
-    meta_access_token: str
-    meta_phone_number_id: str
-    meta_webhook_verify_token: str = "clinica-bot-verify"
-    meta_app_secret: str = ""
-    meta_api_version: str = "v20.0"
+    # Z-API
+    zapi_instance_id: str = ""
+    zapi_token: str = ""
+    zapi_client_token: str = ""  # security token enviado pelo Z-API no header Client-Token
 
     class Config:
         env_file = ".env"
