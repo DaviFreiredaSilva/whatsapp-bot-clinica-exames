@@ -12,3 +12,8 @@ dist/
 *.sqlite-shm
 *.sqlite-wal
 .claude/
+
+# Onboarding do cliente (gerado localmente, nao vai ao repositorio)
+gerar_onboarding.py
+onboarding_cliente.docx
+screenshots/
