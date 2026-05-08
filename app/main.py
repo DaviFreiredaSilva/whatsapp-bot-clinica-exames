@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.agent.graph import init_graph, close_graph
+from app.api.chat import router as chat_router
 from app.api.webhook import router
 from app.rag.vectorstore import init_rag
 
@@ -21,6 +22,7 @@ app = FastAPI(
 )
 
 app.include_router(router)
+app.include_router(chat_router)
 
 
 @app.get("/health")
