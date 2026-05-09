@@ -1,5 +1,9 @@
 import enum
-from datetime import datetime
+from datetime import UTC, datetime
+
+
+def _now() -> datetime:
+    return datetime.now(UTC).replace(tzinfo=None)
 
 from sqlalchemy import Boolean, DateTime, Enum as SAEnum, ForeignKey, Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -37,7 +41,7 @@ class Appointment(Base):
     status: Mapped[AppointmentStatus] = mapped_column(
         SAEnum(AppointmentStatus), default=AppointmentStatus.pending
     )
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=_now, onupdate=_now)
 
     slot: Mapped[Slot] = relationship(back_populates="appointment")

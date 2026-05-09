@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 from sqlalchemy import func, select, update
 
@@ -23,32 +23,33 @@ def format_slot(dt: datetime) -> str:
 async def init_db() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    await _seed_slots()
+    await _ensure_slots()
 
 
-async def _seed_slots(days_ahead: int = 30) -> None:
+async def _ensure_slots(days_ahead: int = 30) -> None:
+    """Garante slots para os próximos N dias. Executado a cada startup."""
     async with AsyncSessionLocal() as session:
-        count = await session.scalar(select(func.count()).select_from(Slot))
-        if count and count > 0:
+        last_dt = await session.scalar(select(func.max(Slot.datetime)))
+        start = (last_dt.date() + timedelta(days=1)) if last_dt else date.today()
+        end = date.today() + timedelta(days=days_ahead)
+
+        if start > end:
             return
 
-        today = date.today()
         slots: list[Slot] = []
-        current = today
-        days_added = 0
-
-        while days_added < days_ahead:
-            if current.weekday() < 5:  # Mon–Fri only
+        current = start
+        while current <= end:
+            if current.weekday() < 5:  # Seg–Sex
                 for hour in range(7, 17):
                     for minute in (0, 30):
                         slots.append(
                             Slot(datetime=datetime(current.year, current.month, current.day, hour, minute))
                         )
-                days_added += 1
             current += timedelta(days=1)
 
-        session.add_all(slots)
-        await session.commit()
+        if slots:
+            session.add_all(slots)
+            await session.commit()
 
 
 async def get_available_slots(days: int = 7) -> list[tuple[int, datetime]]:
@@ -89,7 +90,12 @@ async def create_appointment(
 ) -> Appointment:
     clean_cpf = "".join(c for c in cpf if c.isdigit())
     async with AsyncSessionLocal() as session:
-        await session.execute(update(Slot).where(Slot.id == slot_id).values(available=False))
+        # UPDATE com WHERE available=True garante atomicidade sem SELECT FOR UPDATE
+        result = await session.execute(
+            update(Slot).where(Slot.id == slot_id).where(Slot.available).values(available=False)
+        )
+        if result.rowcount == 0:
+            raise ValueError("Horário não disponível. Por favor, escolha outro.")
         appt = Appointment(
             patient_name=name,
             cpf=clean_cpf,
@@ -123,7 +129,7 @@ async def reschedule_appointment(appointment_id: int, new_slot_id: int) -> Appoi
         await session.execute(update(Slot).where(Slot.id == new_slot_id).values(available=False))
         appt.slot_id = new_slot_id
         appt.status = AppointmentStatus.pending
-        appt.updated_at = datetime.utcnow()
+        appt.updated_at = datetime.now(UTC).replace(tzinfo=None)
         await session.commit()
         await session.refresh(appt)
         return appt

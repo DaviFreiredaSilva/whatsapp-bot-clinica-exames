@@ -70,9 +70,12 @@ def _build_tools(phone: str):
     @tool
     async def agendar_exame(nome: str, cpf: str, tipo_exame: str, slot_id: int) -> str:
         """Registra um novo agendamento após confirmação do paciente."""
-        appt = await svc.create_appointment(nome, cpf, phone, tipo_exame, slot_id)
+        try:
+            appt = await svc.create_appointment(nome, cpf, phone, tipo_exame, slot_id)
+        except ValueError as e:
+            return str(e)
         return (
-            f"Agendamento registrado com sucesso! 🎉\n"
+            f"Agendamento registrado com sucesso!\n"
             f"Protocolo: #{appt.id}\n"
             f"Paciente: {appt.patient_name}\n"
             f"Exame: {appt.exam_type}\n"
