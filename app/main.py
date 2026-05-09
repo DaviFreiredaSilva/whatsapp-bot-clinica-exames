@@ -1,14 +1,16 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from app.agent.graph import init_graph, close_graph
+from app.agent.graph import close_graph, init_graph
 from app.api.chat import router as chat_router
 from app.api.webhook import router
 from app.rag.vectorstore import init_rag
+from app.services.appointments import init_db
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await init_db()
     await init_rag()
     await init_graph()
     yield
