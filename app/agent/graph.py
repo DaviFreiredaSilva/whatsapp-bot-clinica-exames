@@ -1,5 +1,4 @@
 from langgraph.graph import StateGraph, START, END
-from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 
 from app.agent.state import AgentState
 from app.agent.nodes.classify import classify_intent, route_by_intent
@@ -14,12 +13,22 @@ _graph = None
 _checkpointer_cm = None
 
 
+def _is_postgres(url: str) -> bool:
+    return url.startswith("postgresql") or url.startswith("postgres")
+
+
 async def init_graph():
     global _graph, _checkpointer_cm
 
-    _checkpointer_cm = AsyncPostgresSaver.from_conn_string(settings.database_url)
-    checkpointer = await _checkpointer_cm.__aenter__()
-    await checkpointer.setup()
+    if _is_postgres(settings.database_url):
+        from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+        _checkpointer_cm = AsyncPostgresSaver.from_conn_string(settings.database_url)
+        checkpointer = await _checkpointer_cm.__aenter__()
+        await checkpointer.setup()
+    else:
+        from langgraph.checkpoint.memory import MemorySaver
+        checkpointer = MemorySaver()
+        _checkpointer_cm = None
 
     builder = StateGraph(AgentState)
 

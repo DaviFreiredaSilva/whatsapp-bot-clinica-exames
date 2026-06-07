@@ -1,4 +1,4 @@
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import SystemMessage
 
 from app.agent.state import AgentState
@@ -13,7 +13,7 @@ Responda sempre em português brasileiro."""
 
 
 async def handle_faq(state: AgentState) -> dict:
-    llm = ChatOpenAI(model=settings.model_name, api_key=settings.openai_api_key)
+    llm = ChatGoogleGenerativeAI(model=settings.model_name, google_api_key=settings.google_api_key)
 
     system_prompt = BASE_PROMPT
     retriever = get_retriever()

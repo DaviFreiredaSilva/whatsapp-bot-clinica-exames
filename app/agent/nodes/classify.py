@@ -1,4 +1,4 @@
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import SystemMessage
 from pydantic import BaseModel
 from typing import Literal
@@ -23,9 +23,9 @@ class IntentOutput(BaseModel):
 
 
 async def classify_intent(state: AgentState) -> dict:
-    llm = ChatOpenAI(
+    llm = ChatGoogleGenerativeAI(
         model=settings.model_name,
-        api_key=settings.openai_api_key,
+        google_api_key=settings.google_api_key,
     ).with_structured_output(IntentOutput)
 
     result = await llm.ainvoke([SystemMessage(content=SYSTEM_PROMPT), *state["messages"]])

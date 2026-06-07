@@ -1,6 +1,6 @@
 from langchain_core.messages import SystemMessage, ToolMessage
 from langchain_core.tools import tool
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 import app.services.appointments as svc
 from app.agent.state import AgentState
@@ -116,9 +116,9 @@ async def handle_scheduling(state: AgentState) -> dict:
     tools = _build_tools(phone)
     tool_map = {t.name: t for t in tools}
 
-    llm = ChatOpenAI(
+    llm = ChatGoogleGenerativeAI(
         model=settings.model_name,
-        api_key=settings.openai_api_key,
+        google_api_key=settings.google_api_key,
     ).bind_tools(tools)
 
     accumulated: list = []

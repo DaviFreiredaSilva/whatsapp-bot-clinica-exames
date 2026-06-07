@@ -2,8 +2,8 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    openai_api_key: str
-    model_name: str = "gpt-4o-mini"
+    google_api_key: str
+    model_name: str = "gemini-2.5-flash"
 
     database_url: str = "clinica_bot.sqlite"
     docs_dir: str = "docs"

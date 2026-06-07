@@ -1,7 +1,7 @@
 import logging
 
 from langchain_chroma import Chroma
-from langchain_openai import OpenAIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 from app.config import settings
 from app.rag.loader import load_documents
@@ -19,7 +19,10 @@ async def init_rag():
         logger.warning("Nenhum documento encontrado em '%s' — RAG desativado.", settings.docs_dir)
         return
 
-    embeddings = OpenAIEmbeddings(api_key=settings.openai_api_key)
+    embeddings = GoogleGenerativeAIEmbeddings(
+        model="models/gemini-embedding-001",
+        google_api_key=settings.google_api_key,
+    )
     vectorstore = Chroma.from_documents(documents=docs, embedding=embeddings)
     _retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
     logger.info("RAG inicializado com %d chunks.", len(docs))
